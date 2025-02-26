@@ -16,29 +16,35 @@ def generate_samples(distribution, size):
 # Функция построения гистограммы и плотности распределения
 def plot_distribution(distribution, sizes):
     x = np.linspace(-5, 5, 1000)
-    plt.figure(figsize=(10, 6))
-    colors = ['blue', 'cyan', 'magenta', 'brown'] 
+    fig, axes = plt.subplots(1, 3, figsize=(18, 5))  # Создаем 3 подграфика в одном ряду
+    colors = ['blue', 'cyan', 'magenta'] 
+    
     for i, size in enumerate(sizes):
         samples = generate_samples(distribution, size)
         if distribution == "cauchy":
             samples = samples[(samples > -10) & (samples < 10)]  # Ограничиваем выбросы
-        plt.hist(samples, bins=30, density=True, alpha=0.5, color=colors[i % len(colors)], label=f'размер выборки={size}') # Построение гистограммы
-    # Добавление графика плотности распределения
-    if distribution == "normal":
-        plt.plot(x, stats.norm.pdf(x, 0, 1), label="теоретическая функция плотности распределения", color='black')
-    elif distribution == "cauchy":
-        x = np.linspace(-10, 10, 1000)  # Увеличиваем диапазон для Коши
-        plt.plot(x, stats.cauchy.pdf(x, 0, 1), label="теоретическая функция плотности распределения", color='black')
-    elif distribution == "poisson":
-        x = np.arange(0, 20)
-        plt.plot(x, stats.poisson.pmf(x, 10), label="теоретическая функция масс вероятностей", color='black')
-    elif distribution == "uniform":
-        plt.plot(x, stats.uniform.pdf(x, -np.sqrt(3), 2*np.sqrt(3)), label="теоретическая функция плотности распределения", color='black')
+        
+        ax = axes[i]  # Выбираем текущий подграфик
+        ax.hist(samples, bins=30, density=True, alpha=0.5, color=colors[i], label=f'n={size}')
+        
+        # Добавление теоретической плотности распределения
+        if distribution == "normal":
+            ax.plot(x, stats.norm.pdf(x, 0, 1), label="Теоретическая плотность", color='black')
+        elif distribution == "cauchy":
+            x = np.linspace(-10, 10, 1000)  
+            ax.plot(x, stats.cauchy.pdf(x, 0, 1), label="Теоретическая плотность", color='black')
+        elif distribution == "poisson":
+            x = np.arange(0, 20)
+            ax.plot(x, stats.poisson.pmf(x, 10), label="Теоретическая масса вероятностей", color='black')
+        elif distribution == "uniform":
+            ax.plot(x, stats.uniform.pdf(x, -np.sqrt(3), 2*np.sqrt(3)), label="Теоретическая плотность", color='black')
+        
+        ax.set_xlabel("значения случайной величины")
+        ax.set_ylabel("плотность вероятности" if distribution != "poisson" else "масса вероятности")
+        ax.set_title(f'{distribution.capitalize()}, n={size}')
+        ax.legend()
     
-    plt.xlabel("значения случайной величины")
-    plt.ylabel("плотность вероятности" if distribution != "poisson" else "масса вероятности")
-    plt.title(f'Распределение {distribution.capitalize()}')
-    plt.legend()
+    plt.tight_layout()  # Уплотняем расположение графиков
     plt.show()
 
 # Функция вычисления статистических характеристик
